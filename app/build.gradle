@@ -39,6 +39,6 @@ android {
 
 dependencies {
     compile 'com.android.support:appcompat-v7:26.1.0'
-
+    compile 'com.github.nkzawa:socket.io-client:0.3.0'
     compile 'com.sumup:merchant-sdk:3.0.0'
 }

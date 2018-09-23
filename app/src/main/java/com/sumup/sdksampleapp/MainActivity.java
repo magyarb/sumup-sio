@@ -3,15 +3,26 @@ package com.sumup.sdksampleapp;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
 import com.sumup.merchant.Models.TransactionInfo;
 import com.sumup.merchant.api.SumUpAPI;
 import com.sumup.merchant.api.SumUpLogin;
 import com.sumup.merchant.api.SumUpPayment;
 
+import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.socketio.client.Socket;
+import com.github.nkzawa.emitter.Emitter;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.math.BigDecimal;
+import java.net.URISyntaxException;
 import java.util.UUID;
 
 public class MainActivity extends Activity {
@@ -26,17 +37,102 @@ public class MainActivity extends Activity {
     private TextView mReceiptSent;
     private TextView mTxInfo;
 
+    private Socket mSocket;
+
+    {
+        try {
+            mSocket = IO.socket("http://192.168.43.241:3456/");
+            Log.d("kiadta", "MUKODIK2");
+            attemptSend();
+
+        } catch (URISyntaxException e) {
+            Log.d("kiadta", "connection error");
+        }
+    }
+
+    private void attemptSend() {
+        Log.d("kiadta", "AS");
+
+        String message = "hello";
+        if (TextUtils.isEmpty(message)) {
+            return;
+        }
+        mSocket.emit("subscribe", message);
+    }
+
+    private Emitter.Listener onNewMessage = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d("kiadta", "run()");
+                    JSONObject data = (JSONObject) args[0];
+                    String username;
+                    String message;
+                    try {
+                        username = data.getString("username");
+                        message = data.getString("message");
+                    } catch (JSONException e) {
+                        return;
+                    }
+
+                    // add the message to view
+                    addMessage(username, message);
+                }
+            });
+        }
+        private void addMessage(String username, String message) {
+            Log.d("kiadta", "addmessage()");
+        }
+    };
+
+    private Emitter.Listener onNewC = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d("kiadta", "newc      run()");
+                    //JSONObject data = (JSONObject) args[0];
+                    //JSONObject data;
+                    String username = "";
+                    String message = "";
+                    try {
+                        Log.d("kiadta", (String)args[0]);
+                        //username = data.getString("username");
+                        //message = data.getString("message");
+                    } catch (Exception e) {
+                        return;
+                    }
+
+                    // add the message to view
+                    addMessage(username, message);
+                }
+            });
+        }
+
+
+        private void addMessage(String username, String message) {
+            Log.d("kiadta", "addmessage()");
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.d("kiadta", "start");
 
         findViews();
-
+        mSocket.on("new message", onNewMessage);
+        mSocket.on("newc", onNewC);
+        mSocket.connect();
         Button login = (Button) findViewById(R.id.button_login);
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("kiadta", "MUKODIK");
                 // Please go to https://me.sumup.com/developers to get your Affiliate Key by entering the application ID of your app. (e.g. com.sumup.sdksampleapp)
                 SumUpLogin sumupLogin = SumUpLogin.builder("7ca84f17-84a5-4140-8df6-6ebeed8540fc").build();
                 SumUpAPI.openLoginActivity(MainActivity.this, sumupLogin, REQUEST_CODE_LOGIN);
