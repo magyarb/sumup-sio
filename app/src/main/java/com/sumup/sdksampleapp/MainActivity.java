@@ -18,6 +18,7 @@ import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.github.nkzawa.emitter.Emitter;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,12 +37,12 @@ public class MainActivity extends Activity {
     private TextView mTxCode;
     private TextView mReceiptSent;
     private TextView mTxInfo;
-
+/*
     private Socket mSocket;
 
     {
         try {
-            mSocket = IO.socket("http://192.168.43.241:3456/");
+            mSocket = IO.socket("http://192.168.43.172:3456/");
             Log.d("kiadta", "MUKODIK2");
             attemptSend();
 
@@ -118,6 +119,65 @@ public class MainActivity extends Activity {
         }
     };
 
+    private Emitter.Listener onNewPayment = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d("kiadta", "newpayment");
+                    try {
+                        int SumPrice = 0;
+                        JSONObject data = (JSONObject) args[0];
+                        JSONArray prod = data.getJSONArray("products");
+                        for(int i=0;i<prod.length();i++)
+                        {
+                            JSONObject product= prod.getJSONObject(i);
+                            int price = product.getInt("price");
+                            int cnt = product.getInt("cnt");
+                            SumPrice += (price * cnt);
+                            String name = product.getString("name");
+                        }
+                        int id = data.getInt("txid");
+
+                        Log.d("kiadta price", String.valueOf(SumPrice));
+                        Log.d("kiadta id", String.valueOf(id));
+
+                        String uuid = UUID.randomUUID().toString();
+
+                        //send card-tx-started (id, uuid, tipAmount)
+
+                        SumUpPayment payment = SumUpPayment.builder()
+                                // mandatory parameters
+                                .total(new BigDecimal(SumPrice)) // minimum 1.00
+                                .currency(SumUpPayment.Currency.HUF)
+                                .tip(new BigDecimal("10"))
+                                // optional: add details
+                                .title("Tx #" + id)
+                                .receiptEmail("tx@kiadta.com")
+                                .receiptSMS("+36204091668")
+                                // optional: Add metadata
+                                .addAdditionalInfo("txid", String.valueOf(id))
+                                // optional: foreign transaction ID, must be unique!
+                                .foreignTransactionId(uuid) // can not exceed 128 chars
+                                .skipSuccessScreen()
+                                .build();
+
+                        SumUpAPI.checkout(MainActivity.this, payment, REQUEST_CODE_PAYMENT);
+                    } catch (Exception e) {
+                        Log.d("kiadta", "error in json parsing");
+                        return;
+                    }
+                }
+            });
+        }
+
+
+        private void addMessage(String username, String message) {
+            Log.d("kiadta", "addmessage()");
+        }
+    };
+*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -125,9 +185,10 @@ public class MainActivity extends Activity {
         Log.d("kiadta", "start");
 
         findViews();
-        mSocket.on("new message", onNewMessage);
-        mSocket.on("newc", onNewC);
-        mSocket.connect();
+        //mSocket.on("new message", onNewMessage);
+        //mSocket.on("newc", onNewC);
+        //mSocket.on("newpayment-card", onNewPayment);
+        //mSocket.connect();
         Button login = (Button) findViewById(R.id.button_login);
         login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -143,23 +204,9 @@ public class MainActivity extends Activity {
         btnCharge.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SumUpPayment payment = SumUpPayment.builder()
-                        // mandatory parameters
-                        .total(new BigDecimal("1.12")) // minimum 1.00
-                        .currency(SumUpPayment.Currency.EUR)
-                        // optional: add details
-                        .title("Taxi Ride")
-                        .receiptEmail("customer@mail.com")
-                        .receiptSMS("+3531234567890")
-                        // optional: Add metadata
-                        .addAdditionalInfo("AccountId", "taxi0334")
-                        .addAdditionalInfo("From", "Paris")
-                        .addAdditionalInfo("To", "Berlin")
-                        // optional: foreign transaction ID, must be unique!
-                        .foreignTransactionId(UUID.randomUUID().toString()) // can not exceed 128 chars
-                        .build();
+                Intent openActivity = new Intent(MainActivity.this, E2Activity.class);
+                startActivity(openActivity);
 
-                SumUpAPI.checkout(MainActivity.this, payment, REQUEST_CODE_PAYMENT);
             }
         });
 
@@ -216,6 +263,7 @@ public class MainActivity extends Activity {
 
                     TransactionInfo transactionInfo = extra.getParcelable(SumUpAPI.Response.TX_INFO);
                     mTxInfo.setText(transactionInfo == null ? "" : "Transaction Info : " + transactionInfo);
+
                 }
                 break;
 
