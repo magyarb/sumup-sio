@@ -33,7 +33,8 @@ public class E2Activity extends AppCompatActivity {
 
     {
         try {
-            mSocket = IO.socket("http://192.168.43.172:3456/");
+            //mSocket = IO.socket("http://192.168.43.172:3456/");
+            mSocket = IO.socket("http://192.168.0.58:3456/");
             Log.d("kiadta", "socket connected");
             attemptSend();
 
@@ -149,7 +150,7 @@ public class E2Activity extends AppCompatActivity {
                     if(resultCode == SumUpAPI.Response.ResultCode.SUCCESSFUL)
                     {
                         TransactionInfo transactionInfo = extra.getParcelable(SumUpAPI.Response.TX_INFO);
-                        mSocket.emit("card-tx-finished", uuid, resultCode, transactionInfo.getTipAmount());
+                        mSocket.emit("card-tx-finished", uuid, resultCode, transactionInfo.getTipAmount(), transactionInfo.getAmount());
                     }
                     else{
                         mSocket.emit("card-tx-finished", uuid, resultCode);

@@ -62,6 +62,8 @@ public class TipGetterActivity extends AppCompatActivity {
         uuid = getIntent().getStringExtra("EXTRA_UUID");
         amount = getIntent().getIntExtra("EXTRA_AMOUNT", 0);
         id = getIntent().getIntExtra("EXTRA_ID", 0);
+        if(amount < 300)
+            amount = 300;
         setContentView(R.layout.activity_tip_getter);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         //buttons
@@ -71,11 +73,11 @@ public class TipGetterActivity extends AppCompatActivity {
         final Button button15 = findViewById(R.id.button4);
         final Button button20 = findViewById(R.id.button6);
 
-        button0.setText("0% - " + round(amount * 1.0) + " HUF");
-        button5.setText("5% - " + round(amount * 1.05) + " HUF");
-        button10.setText("10% - " + round(amount * 1.1) + " HUF");
-        button15.setText("15% - " + round(amount * 1.15) + " HUF");
-        button20.setText("20% - " + round(amount * 1.2) + " HUF");
+        button0.setText("0% - " + round(amount * 1.0    )        + " HUF");
+        button5.setText("5% - " + round(amount * 1.05   )        + " HUF");
+        button10.setText("10% - " + round(amount * 1.1  )        + " HUF");
+        button15.setText("15% - " + round(amount * 1.15 )        + " HUF");
+        button20.setText("20% - " + round(amount * 1.2  )        + " HUF");
 
         button0.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
