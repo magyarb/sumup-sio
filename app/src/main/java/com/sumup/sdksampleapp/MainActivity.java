@@ -201,10 +201,13 @@ public class MainActivity extends Activity {
         });
 
         Button btnCharge = (Button) findViewById(R.id.button_charge);
+        final TextView ipfield = (TextView) findViewById(R.id.editText);
+
         btnCharge.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent openActivity = new Intent(MainActivity.this, E2Activity.class);
+                openActivity.putExtra("IP", ipfield.getText().toString());
                 startActivity(openActivity);
 
             }

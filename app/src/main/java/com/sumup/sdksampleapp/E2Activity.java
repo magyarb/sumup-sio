@@ -36,18 +36,6 @@ public class E2Activity extends AppCompatActivity {
 
     private Socket mSocket;
 
-    {
-        try {
-            mSocket = IO.socket("http://192.168.43.172:3456/");
-            //mSocket = IO.socket("http://192.168.0.58:3456/");
-            Log.d("kiadta", "socket connecting...");
-            attemptSend();
-
-        } catch (URISyntaxException e) {
-            Log.d("kiadta", "connection error");
-        }
-    }
-
     private void attemptSend() {
         Log.d("kiadta", "AS");
 
@@ -160,6 +148,17 @@ public class E2Activity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.hide();
+        }
+
+        String ip = getIntent().getStringExtra("IP");
+        try {
+            mSocket = IO.socket(ip);
+            //mSocket = IO.socket("http://192.168.0.58:3456/");
+            Log.d("kiadta", "socket connecting...");
+            attemptSend();
+
+        } catch (URISyntaxException e) {
+            Log.d("kiadta", "connection error");
         }
 
         mSocket.on("newpayment-card", onNewPayment);
