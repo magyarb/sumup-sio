@@ -7,7 +7,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
@@ -29,13 +31,16 @@ public class E2Activity extends AppCompatActivity {
     private static final int REQUEST_CODE_PAYMENT = 2;
     private static final int REQUEST_CODE_PAYMENT_SETTINGS = 3;
 
+    public TextView tv;
+    public String connStatus = "";
+
     private Socket mSocket;
 
     {
         try {
-            //mSocket = IO.socket("http://192.168.43.172:3456/");
-            mSocket = IO.socket("http://192.168.0.58:3456/");
-            Log.d("kiadta", "socket connected");
+            mSocket = IO.socket("http://192.168.43.172:3456/");
+            //mSocket = IO.socket("http://192.168.0.58:3456/");
+            Log.d("kiadta", "socket connecting...");
             attemptSend();
 
         } catch (URISyntaxException e) {
@@ -50,7 +55,30 @@ public class E2Activity extends AppCompatActivity {
         if (TextUtils.isEmpty(message)) {
             return;
         }
+        checkStatus();
         mSocket.emit("subscribe", message);
+        /*
+        if(mSocket.connected()) {
+            Log.d("kiadta", "connected");
+
+            connStatus = "CONNECTED";
+            if(tv != null)
+                tv.setText(connStatus);
+        }
+        else{
+            Log.d("kiadta", "not connected");
+            connStatus = "NOT CONNECTED";
+            if(tv != null)
+                tv.setText(connStatus);
+            //finish();
+        }*/
+    }
+
+    private void checkStatus(){
+        connStatus = mSocket.connected() ? "" : "NOT CONNECTED";
+        Log.d("kiadta", connStatus);
+        if(tv != null)
+            tv.setText(connStatus);
     }
 
     private Emitter.Listener onNewPayment = new Emitter.Listener() {
@@ -124,8 +152,11 @@ public class E2Activity extends AppCompatActivity {
 
         //Remove notification bar
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setContentView(R.layout.activity_e2);
+
+        tv = findViewById(R.id.textView2);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.hide();
@@ -133,7 +164,16 @@ public class E2Activity extends AppCompatActivity {
 
         mSocket.on("newpayment-card", onNewPayment);
         mSocket.connect();
+        checkStatus();
         SumUpAPI.prepareForCheckout();
+
+        tv.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // Code here executes on main thread after user presses button
+                checkStatus();
+            }
+        });
+
     }
 
     @Override
@@ -149,7 +189,7 @@ public class E2Activity extends AppCompatActivity {
 
                     if(resultCode == SumUpAPI.Response.ResultCode.SUCCESSFUL)
                     {
-                        TransactionInfo transactionInfo = extra.getParcelable(SumUpAPI.Response.TX_INFO);
+                        TransactionInfo transactionInfo = extra.getParcelable("txinfo");
                         mSocket.emit("card-tx-finished", uuid, resultCode, transactionInfo.getTipAmount(), transactionInfo.getAmount());
                     }
                     else{

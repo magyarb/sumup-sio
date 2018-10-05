@@ -8,12 +8,22 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:background="#000000"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="#000000"
         android:cropToPadding="false"
         android:padding="70dp"
         android:scaleType="fitCenter"
         app:srcCompat="@drawable/aklogo2f" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="158dp"
+        android:layout_height="25dp"
+        android:gravity="center"
+        android:text=""
+        android:textColor="#ffffff"
+        tools:layout_editor_absoluteX="113dp"
+        tools:layout_editor_absoluteY="415dp" />
 
 </android.support.constraint.ConstraintLayout>

@@ -58,14 +58,14 @@ public class TipGetterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //Remove notification bar
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
+        this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         uuid = getIntent().getStringExtra("EXTRA_UUID");
         amount = getIntent().getIntExtra("EXTRA_AMOUNT", 0);
         id = getIntent().getIntExtra("EXTRA_ID", 0);
         if(amount < 300)
             amount = 300;
         setContentView(R.layout.activity_tip_getter);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         //buttons
         final Button button0 = findViewById(R.id.button);
         final Button button5 = findViewById(R.id.button2);
